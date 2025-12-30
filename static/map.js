@@ -32,6 +32,29 @@ const appState = {
   }
 };
 
+function handleWSMessage(raw) {
+  let msg;
+
+  try {
+    msg = typeof raw === "string" ? JSON.parse(raw) : raw;
+  } catch (e) {
+    console.error("Invalid WS payload", raw);
+    return;
+  }
+
+  if (msg.type !== "snapshot") return;
+
+  // 🔥 Update global state
+  appState.nodes = msg.nodes || {};
+  appState.incidents = msg.incidents || [];
+
+  // 🔁 Re-render everything
+  renderNodes();
+  renderIncidents();
+  updateNetworkStatus();
+}
+
+
 
 window.map = L.map('flames-map',{ zoomControl: false}).setView([16.046962, 120.342117], 12); 
 
