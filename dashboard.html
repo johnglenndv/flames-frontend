@@ -17,6 +17,11 @@
 </head>
 
 <body>
+    <script>
+        if (localStorage.getItem("isLoggedIn") !== "true") {
+        window.location.href = "login.html";
+        }
+    </script>
 
 
     
@@ -24,6 +29,15 @@
         <h1><img src = "/icons/logo.png" alt = "Frames" id="flames-logo" width = "65" height="60">
              F.L.A.M.E.S. </h1>
     </div> 
+
+        <button onclick="logout()">Logout</button>
+
+        <script>
+        function logout() {
+        localStorage.clear();
+        window.location.href = "login.html";
+        }
+        </script>
 
 
             <div class="search-box">
@@ -133,9 +147,6 @@
 
 
         <script>
-            if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
-                window.location.href = "index.html";
-            }
 
             const API_BASE = "https://flames-backend-hbu0.onrender.com";
 
