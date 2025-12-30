@@ -41,6 +41,30 @@ const nodeIcon = L.icon({
 });
 
 // ================================
+// GATEWAY MARKER (RESTORED)
+// ================================
+const gatewayIcon = L.icon({
+  iconUrl: "/icons/Gateway.png",
+  iconSize: [50, 50],
+  iconAnchor: [20, 40],
+  popupAnchor: [0, -40]
+});
+
+const gatewayMarker = L.marker(
+  [GATEWAY_LAT, GATEWAY_LON],
+  {
+    icon: gatewayIcon,
+    zIndexOffset: 1000 // 👈 ensures it stays visible
+  }
+)
+  .addTo(map)
+  .bindPopup("PHINMA Upang (F.L.A.M.E.S. Gateway)");
+
+gatewayMarker.on("mouseover", () => gatewayMarker.openPopup());
+gatewayMarker.on("mouseout", () => gatewayMarker.closePopup());
+
+
+// ================================
 // NODE MARKERS
 // ================================
 function addNodeMarker(node) {
