@@ -538,16 +538,25 @@ map.on('contextmenu click dragstart', function() {
     if (suggestionsBox) suggestionsBox.style.display = 'none';
 });
 
+//live status data from mysql ni jg
 function updateNodeStatus(data) {
     const box = document.getElementById("status-content");
 
+    if (!data) {
+        box.innerHTML = "<p>No data available</p>";
+        return;
+    }
+
     box.innerHTML = `
-      <p>Node ID: ${data.node_id}</p>
-      <p>Temperature: ${data.temperature}°C</p>
-      <p>Smoke: ${data.smoke}</p>
-      <p>Flame: ${data.flame ? "YES" : "NO"}</p>
+        <p><strong>Node ID:</strong> ${data.node}</p>
+        <p><strong>Temperature:</strong> ${data.temp} °C</p>
+        <p><strong>Humidity:</strong> ${data.hum} %</p>
+        <p><strong>Smoke:</strong> ${data.smoke}</p>
+        <p><strong>Flame:</strong> ${data.flame ? "YES" : "NO"}</p>
+        <p><small>Last update: ${data.received_at}</small></p>
     `;
 }
+
 
 //add node ni jg
 function addNodeMarker(node) {
