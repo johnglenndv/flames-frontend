@@ -172,7 +172,7 @@
             );
 
             socket.onmessage = (event) => {
-             const payload = JSON.parse(event.data);
+            const payload = JSON.parse(event.data);
 
             // example
             if (payload.type === "nodes") {
