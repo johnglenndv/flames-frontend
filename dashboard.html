@@ -156,19 +156,31 @@
               "wss://flames-backend-hbu0.onrender.com/ws"
             );
 
-            socket.onmessage = (event) => {
-                console.log("WS RAW:", event.data);
+            ws.onmessage = (event) => {
+            const msg = JSON.parse(event.data);
+            console.log("WS RAW:", msg);
 
-                const payload = JSON.parse(event.data);
+            if (msg.type === "init") {
+             appState.nodes = msg.data.nodes;
+             appState.incidents = msg.data.incidents;
 
-                if (payload.type === "nodes") {
-                    window.handleNodeUpdate(payload.data);
-                }
+             renderNodes();
+                renderIncidents();
+                updateNetworkStatus();
+            }
 
-                if (payload.type === "incidents") {
-                    window.handleIncidentUpdate(payload.data);
-                }
+            if (msg.type === "node_update") {
+              appState.nodes[msg.data.node] = msg.data;
+              renderNodes();
+              updateNetworkStatus();
+            }
+
+            if (msg.type === "incident") {
+              appState.incidents.unshift(msg.data);
+              renderIncidents();
+              updateNetworkStatus();}
             };
+
 
             socket.onerror = (err) => console.error(err);
 
