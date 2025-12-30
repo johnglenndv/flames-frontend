@@ -8,6 +8,11 @@ const GATEWAY_LAT = 16.046962;
 const GATEWAY_LON = 120.342117;
 
 // ================================
+// FALLBACK POSITIONS (NO GPS)
+// ================================
+const fallbackPositions = {}; // nodeId -> { lat, lon }
+
+// ================================
 // STATE
 // ================================
 const appState = {
@@ -17,7 +22,7 @@ const appState = {
   network: { total: 0, online: 0, offline: 0 }
 };
 
-const nodeMarkers = {}; // nodeId → marker
+const nodeMarkers = {}; // nodeId -> Leaflet marker
 
 // ================================
 // MAP INIT
@@ -40,9 +45,6 @@ const nodeIcon = L.icon({
   popupAnchor: [0, -35]
 });
 
-// ================================
-// GATEWAY MARKER (RESTORED)
-// ================================
 const gatewayIcon = L.icon({
   iconUrl: "/icons/Gateway.png",
   iconSize: [50, 50],
@@ -50,12 +52,12 @@ const gatewayIcon = L.icon({
   popupAnchor: [0, -40]
 });
 
+// ================================
+// GATEWAY MARKER
+// ================================
 const gatewayMarker = L.marker(
   [GATEWAY_LAT, GATEWAY_LON],
-  {
-    icon: gatewayIcon,
-    zIndexOffset: 1000 // 👈 ensures it stays visible
-  }
+  { icon: gatewayIcon, zIndexOffset: 1000 }
 )
   .addTo(map)
   .bindPopup("PHINMA Upang (F.L.A.M.E.S. Gateway)");
@@ -63,31 +65,64 @@ const gatewayMarker = L.marker(
 gatewayMarker.on("mouseover", () => gatewayMarker.openPopup());
 gatewayMarker.on("mouseout", () => gatewayMarker.closePopup());
 
-
 // ================================
 // NODE MARKERS
 // ================================
 function addNodeMarker(node) {
-  if (node.lat == null || node.lon == null) return;
+  let lat = node.lat;
+  let lon = node.lon;
 
-  const marker = L.marker([node.lat, node.lon], { icon: nodeIcon })
+  // 📍 NO GPS → PLACE NEAR GATEWAY
+  if (lat == null || lon == null) {
+    if (!fallbackPositions[node.node]) {
+      const index = Object.keys(fallbackPositions).length + 1;
+      const offset = index * 0.00015;
+
+      fallbackPositions[node.node] = {
+        lat: GATEWAY_LAT + offset,
+        lon: GATEWAY_LON + offset
+      };
+    }
+
+    lat = fallbackPositions[node.node].lat;
+    lon = fallbackPositions[node.node].lon;
+  }
+
+  const marker = L.marker([lat, lon], { icon: nodeIcon })
     .addTo(map)
-    .bindPopup(`Node: ${node.node}`);
+    .bindPopup(`
+      <b>Node:</b> ${node.node}<br>
+    `);
 
   marker.on("click", () => {
     appState.selectedNodeId = node.node;
     updateNodeStatus(node);
-    map.flyTo([node.lat, node.lon], 18);
+    map.flyTo([lat, lon], 18);
   });
 
   nodeMarkers[node.node] = marker;
 }
 
+// ================================
+// UPDATE NODE POSITION
+// ================================
 function updateNodeMarker(node) {
   if (!nodeMarkers[node.node]) return;
-  if (node.lat == null || node.lon == null) return;
 
-  nodeMarkers[node.node].setLatLng([node.lat, node.lon]);
+  // 🛰 GPS ARRIVED → MOVE TO REAL LOCATION
+  if (node.lat != null && node.lon != null) {
+    nodeMarkers[node.node].setLatLng([node.lat, node.lon]);
+    delete fallbackPositions[node.node];
+    return;
+  }
+
+  // ❗ STILL NO GPS → STAY NEAR GATEWAY
+  if (fallbackPositions[node.node]) {
+    nodeMarkers[node.node].setLatLng([
+      fallbackPositions[node.node].lat,
+      fallbackPositions[node.node].lon
+    ]);
+  }
 }
 
 // ================================
@@ -156,17 +191,15 @@ function updateNetworkStatus() {
 }
 
 // ================================
-// INITIAL LOAD (THIS WAS MISSING ❌)
+// INITIAL LOAD
 // ================================
 async function loadInitialData() {
-  // Load nodes
   const res = await fetch(`${API_BASE}/nodes`);
   appState.nodes = await res.json();
 
   Object.values(appState.nodes).forEach(addNodeMarker);
   updateNetworkStatus();
 
-  // Load incidents
   const inc = await fetch(`${API_BASE}/incidents`);
   appState.incidents = await inc.json();
   renderIncidents();
@@ -175,7 +208,7 @@ async function loadInitialData() {
 loadInitialData();
 
 // ================================
-// WEBSOCKET (FIXED)
+// WEBSOCKET (REAL-TIME)
 // ================================
 const ws = new WebSocket(WS_URL);
 
