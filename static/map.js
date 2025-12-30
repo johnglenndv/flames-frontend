@@ -69,18 +69,23 @@ gatewayMarker.on("mouseout", () => gatewayMarker.closePopup());
 // NODE MARKERS
 // ================================
 function addNodeMarker(node) {
-  let lat = node.lat;
-  let lon = node.lon;
+  let lat, lon;
 
-  // 📍 NO GPS → PLACE NEAR GATEWAY
-  if (lat == null || lon == null) {
+  // 📍 GPS AVAILABLE
+  if (node.lat != null && node.lon != null) {
+    lat = node.lat;
+    lon = node.lon;
+  } 
+  // 📍 GPS MISSING → FALLBACK NEAR GATEWAY
+  else {
     if (!fallbackPositions[node.node]) {
       const index = Object.keys(fallbackPositions).length + 1;
-      const offset = index * 0.00015;
+      const angle = index * 45 * (Math.PI / 180);
+      const radius = 0.00025;
 
       fallbackPositions[node.node] = {
-        lat: GATEWAY_LAT + offset,
-        lon: GATEWAY_LON + offset
+        lat: GATEWAY_LAT + Math.cos(angle) * radius,
+        lon: GATEWAY_LON + Math.sin(angle) * radius
       };
     }
 
@@ -88,11 +93,7 @@ function addNodeMarker(node) {
     lon = fallbackPositions[node.node].lon;
   }
 
-  const marker = L.marker([lat, lon], { icon: nodeIcon })
-    .addTo(map)
-    .bindPopup(`
-      <b>Node:</b> ${node.node}<br>
-    `);
+  const marker = L.marker([lat, lon], { icon: nodeIcon }).addTo(map);
 
   marker.on("click", () => {
     appState.selectedNodeId = node.node;
@@ -104,31 +105,32 @@ function addNodeMarker(node) {
 }
 
 
+
 // ================================
 // UPDATE NODE POSITION
 // ================================
 function updateNodeMarker(node) {
-  if (!nodeMarkers[node.node]) return;
+  const marker = nodeMarkers[node.node];
+  if (!marker) return;
 
   // 🛰 GPS ARRIVED → MOVE TO REAL LOCATION
   if (node.lat != null && node.lon != null) {
-    nodeMarkers[node.node].setLatLng([node.lat, node.lon]);
+    marker.setLatLng([node.lat, node.lon]);
     delete fallbackPositions[node.node];
-    return;
   }
-
-  // ❗ STILL NO GPS → STAY NEAR GATEWAY
-  if (fallbackPositions[node.node]) {
-    nodeMarkers[node.node].setLatLng([
+  // ❗ STILL NO GPS → STAY IN FALLBACK
+  else if (fallbackPositions[node.node]) {
+    marker.setLatLng([
       fallbackPositions[node.node].lat,
       fallbackPositions[node.node].lon
     ]);
   }
 
-   // 🔴 VISUAL REAL-TIME FEEDBACK (blink)
-  nodeMarkers[node.node].setOpacity(0.3);
-  setTimeout(() => nodeMarkers[node.node].setOpacity(1), 200);
+  // 🔴 visual real-time blink
+  marker.setOpacity(0.3);
+  setTimeout(() => marker.setOpacity(1), 200);
 }
+
 
 // ================================
 // NODE STATUS PANEL
