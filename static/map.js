@@ -96,10 +96,16 @@ function addNodeMarker(node) {
   const marker = L.marker([lat, lon], { icon: nodeIcon }).addTo(map);
 
   marker.on("click", () => {
-    appState.selectedNodeId = node.node;
-    updateNodeStatus(node);
-    map.flyTo([lat, lon], 18);
-  });
+  appState.selectedNodeId = node.node;
+
+  // 🔥 ALWAYS read latest data from global state
+  const latestNode = appState.nodes[node.node];
+  if (latestNode) {
+    updateNodeStatus(latestNode);
+  }
+
+  map.flyTo([lat, lon], 18);
+});
 
   nodeMarkers[node.node] = marker;
 }
