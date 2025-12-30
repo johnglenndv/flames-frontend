@@ -142,14 +142,31 @@ function updateNodeMarker(node) {
 // NODE STATUS PANEL
 // ================================
 function updateNodeStatus(node) {
+    const dt = new Date(node.received_at);
+
+    const dateStr = dt.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "2-digit"
+    });
+
+    const timeStr = dt.toLocaleTimeString(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit"
+    });
+
+
   document.getElementById("status-content").innerHTML = `
     <p><strong>Node ID:</strong> ${node.node}</p>
     <p><strong>Temperature:</strong> ${node.temp} °C</p>
     <p><strong>Humidity:</strong> ${node.hum} %</p>
     <p><strong>Smoke:</strong> ${node.smoke}</p>
     <p><strong>Flame:</strong> ${node.flame ? "YES" : "NO"}</p>
-    <small>Last update: ${node.received_at}</small>
-  <div>
+
+    
+    <small><strong>Date:</strong> ${dateStr}</small><br>
+    <small><strong>Time:</strong> ${timeStr}</small>
   `;
 }
 
