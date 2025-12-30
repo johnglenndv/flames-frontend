@@ -103,6 +103,7 @@ function addNodeMarker(node) {
   nodeMarkers[node.node] = marker;
 }
 
+
 // ================================
 // UPDATE NODE POSITION
 // ================================
@@ -123,16 +124,17 @@ function updateNodeMarker(node) {
       fallbackPositions[node.node].lon
     ]);
   }
+
+   // 🔴 VISUAL REAL-TIME FEEDBACK (blink)
+  nodeMarkers[node.node].setOpacity(0.3);
+  setTimeout(() => nodeMarkers[node.node].setOpacity(1), 200);
 }
 
 // ================================
 // NODE STATUS PANEL
 // ================================
 function updateNodeStatus(node) {
-  const box = document.getElementById("status-content");
-  if (!box) return;
-
-  box.innerHTML = `
+  document.getElementById("status-content").innerHTML = `
     <p><strong>Node ID:</strong> ${node.node}</p>
     <p><strong>Temperature:</strong> ${node.temp} °C</p>
     <p><strong>Humidity:</strong> ${node.hum} %</p>
@@ -146,13 +148,13 @@ function updateNodeStatus(node) {
 // INCIDENTS
 // ================================
 function renderIncidents() {
-  const box = document.getElementById("incidentList");
+  const list = document.getElementById("incidentList");
   const count = document.getElementById("incident-count");
 
-  box.innerHTML = "";
+  list.innerHTML = "";
 
   if (appState.incidents.length === 0) {
-    box.innerHTML = "<p>No active incidents.</p>";
+    list.innerHTML = "<p>No active incidents.</p>";
     count.innerText = "0";
     return;
   }
@@ -223,15 +225,17 @@ ws.onmessage = (event) => {
       updateNodeMarker(node);
     }
 
-    updateNetworkStatus();
-
+    // ✅ LIVE STATUS UPDATE
     if (appState.selectedNodeId === node.node) {
       updateNodeStatus(node);
     }
+
+    updateNetworkStatus();
   }
 
   if (msg.type === "incident") {
     appState.incidents.unshift(msg.data);
+    appState.incidents = appState.incidents.slice(0, 20);
     renderIncidents();
   }
 };
