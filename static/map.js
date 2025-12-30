@@ -92,9 +92,6 @@ function addNodeMarker(node) {
     .addTo(map)
     .bindPopup(`
       <b>Node:</b> ${node.node}<br>
-      🌡 Temp: ${node.temp} °C<br>
-      💧 Humidity: ${node.hum} %<br>
-      🔥 Flame: ${node.flame ? "YES" : "NO"}
     `);
 
   marker.on("click", () => {
