@@ -148,50 +148,7 @@
 
         <script>
 
-            window.API_BASE = "https://flames-backend-hbu0.onrender.com";
-
-
-                        // --- WebSocket connection ---
-            const socket = new WebSocket(
-              "wss://flames-backend-hbu0.onrender.com/ws"
-            );
-
-            ws.onmessage = (event) => {
-            const msg = JSON.parse(event.data);
-            console.log("WS RAW:", msg);
-
-            if (msg.type === "init") {
-             appState.nodes = msg.data.nodes;
-             appState.incidents = msg.data.incidents;
-
-             renderNodes();
-                renderIncidents();
-                updateNetworkStatus();
-            }
-
-            if (msg.type === "node_update") {
-              appState.nodes[msg.data.node] = msg.data;
-              renderNodes();
-              updateNetworkStatus();
-            }
-
-            if (msg.type === "incident") {
-              appState.incidents.unshift(msg.data);
-              renderIncidents();
-              updateNetworkStatus();}
-            };
-
-
-            socket.onerror = (err) => console.error(err);
-
-
-            socket.onclose = () => {
-            console.log("❌ WebSocket disconnected");
-            };
-
-            socket.onerror = (err) => {
-              console.error("WebSocket error:", err);
-            };
+    
 
       </script>
 

@@ -1,3 +1,23 @@
+// map.js (TOP LEVEL)
+const ws = new WebSocket("wss://flames-backend-hbu0.onrender.com/ws");
+
+ws.onopen = () => {
+  console.log("WebSocket connected");
+};
+
+ws.onmessage = (event) => {
+  const msg = JSON.parse(event.data);
+  console.log("WS RAW:", msg);
+
+  handleWSMessage(msg);
+};
+
+ws.onclose = () => {
+  console.warn("WebSocket closed");
+};
+
+window.API_BASE = "https://flames-backend-hbu0.onrender.com";
+
 let selectedNodeId = null;
 
 const nodeMarkers = {};
