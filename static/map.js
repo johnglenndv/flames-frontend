@@ -32,26 +32,33 @@ const appState = {
   }
 };
 
-function handleWSMessage(raw) {
-  let msg;
+function renderNodes() {
+  Object.values(appState.nodes).forEach(node => {
+    if (!nodeMarkers[node.node]) {
+      addNodeMarker(node);
+    } else {
+      updateNodeMarker(node);
+    }
+  });
+}
 
-  try {
-    msg = typeof raw === "string" ? JSON.parse(raw) : raw;
-  } catch (e) {
-    console.error("Invalid WS payload", raw);
-    return;
-  }
 
+function handleWSMessage(msg) {
   if (msg.type !== "snapshot") return;
 
-  // 🔥 Update global state
+  // Update state
   appState.nodes = msg.nodes || {};
   appState.incidents = msg.incidents || [];
 
-  // 🔁 Re-render everything
+  // Render UI
   renderNodes();
   renderIncidents();
   updateNetworkStatus();
+
+  // Update selected node panel live
+  if (appState.selectedNodeId && appState.nodes[appState.selectedNodeId]) {
+    updateNodeStatus(appState.nodes[appState.selectedNodeId]);
+  }
 }
 
 
