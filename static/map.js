@@ -147,6 +147,12 @@ function updateNodeStatus(node) {
   `;
 }
 
+function refreshSelectedNodeStatus(node) {
+  if (appState.selectedNodeId === node.node) {
+    updateNodeStatus(node);
+  }
+}
+
 // ================================
 // INCIDENTS
 // ================================
@@ -219,22 +225,24 @@ ws.onmessage = (event) => {
   const msg = JSON.parse(event.data);
 
   if (msg.type === "node_update") {
-    const node = msg.data;
-    appState.nodes[node.node] = node;
+  const node = msg.data;
 
-    if (!nodeMarkers[node.node]) {
-      addNodeMarker(node);
-    } else {
-      updateNodeMarker(node);
-    }
+  // 1️⃣ Update global state
+  appState.nodes[node.node] = node;
 
-    // ✅ LIVE STATUS UPDATE
-    if (appState.selectedNodeId === node.node) {
-      updateNodeStatus(node);
-    }
-
-    updateNetworkStatus();
+  // 2️⃣ Update or create marker
+  if (!nodeMarkers[node.node]) {
+    addNodeMarker(node);
+  } else {
+    updateNodeMarker(node);
   }
+
+  // 3️⃣ 🔥 REAL-TIME NODE STATUS UPDATE
+  refreshSelectedNodeStatus(node);
+
+  // 4️⃣ Network status
+  updateNetworkStatus();
+}
 
   if (msg.type === "incident") {
     appState.incidents.unshift(msg.data);
