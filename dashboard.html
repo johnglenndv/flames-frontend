@@ -149,7 +149,7 @@
         <script>
 
             //realtime truth
-            const appState = {
+            windows.appState = {
              nodes: {},        // all node data (latest)
              incidents: [],    // active incidents
               network: {
@@ -163,7 +163,7 @@
 
         <script
 
-            const API_BASE = "https://flames-backend-hbu0.onrender.com";
+            window.API_BASE = "https://flames-backend-hbu0.onrender.com";
 
 
                         // --- WebSocket connection ---
@@ -172,30 +172,18 @@
             );
 
             socket.onmessage = (event) => {
-            const msg = JSON.parse(event.data);
+             const payload = JSON.parse(event.data);
 
-            if (msg.type === "node_update") {
-               const node = msg.data;
-
-              // store latest node data
-             appState.nodes[node.node] = node;
-
-             // update map marker in real-time
-             updateNodeMarker(node);
-
-             // auto-update Node Status box
-             if (node.node === appState.selectedNodeId) {
-               updateNodeStatus(node);
-             }
-
-             // recompute network status
-             updateNetworkStatus();
+            // example
+            if (payload.type === "nodes") {
+                appState.nodes = payload.data;
             }
 
-            if (msg.type === "incident") {
-                appState.incidents.push(msg.data);
-                renderIncidents();
-             }
+            if (payload.type === "incidents") {
+             appState.incidents = payload.data;
+            }
+
+            refreshUI();
             };
 
 
