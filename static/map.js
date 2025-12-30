@@ -1,3 +1,6 @@
+const API_BASE = "https://flames-backend-hbu0.onrender.com";
+
+
 var map = L.map('flames-map',{ zoomControl: false}).setView([16.046962, 120.342117], 12); 
 
 // 1. GLOBAL VARIABLES
@@ -117,11 +120,7 @@ var nodeIcon = L.icon({
     popupAnchor: [0, -35]
 });
 
-var nodesData = [
-    { name: "Brgy. Bolaoit, Malasiqui", coords: [15.931320, 120.427939], temp: "28&deg;C", humidity: "68%", smoke: "Clear", flame: "Negative" },
-    { name: "San Carlos", coords: [15.937700, 120.343361], temp: "45&deg;C", humidity: "66%", smoke: "DETECTED", flame: "ALERT" },
-    { name: "Binmaley", coords: [16.028410, 120.269180], temp: "30&deg;C", humidity: "71%", smoke: "Clear", flame: "Negative" }
-];
+
 
 function resetNodeStatus() {
     var statusContent = document.getElementById('status-content');
@@ -532,3 +531,46 @@ map.on('contextmenu click dragstart', function() {
     const suggestionsBox = document.getElementById('suggestionsBox');
     if (suggestionsBox) suggestionsBox.style.display = 'none';
 });
+
+function updateNodeStatus(data) {
+    const box = document.getElementById("status-content");
+
+    box.innerHTML = `
+      <p>Node ID: ${data.node_id}</p>
+      <p>Temperature: ${data.temperature}°C</p>
+      <p>Smoke: ${data.smoke}</p>
+      <p>Flame: ${data.flame ? "YES" : "NO"}</p>
+    `;
+}
+
+function addNodeMarker(node) {
+    const marker = L.marker([node.lat, node.lon], { icon: nodeIcon })
+        .addTo(map)
+        .bindPopup(`Node: ${node.node_id}`, {
+            autoClose: false,
+            closeOnClick: false,
+            closeButton: true
+        });
+
+    marker.on('mouseover', function () { this.openPopup(); });
+    marker.on('mouseout', function () { this.closePopup(); });
+
+    marker.on('click', function (e) {
+        L.DomEvent.stopPropagation(e);
+        this.openPopup();
+        map.flyTo([node.lat, node.lon], 18, { animate: true, duration: 1.5 });
+
+        fetch(`${API_BASE}/nodes/${node.node_id}`)
+            .then(res => res.json())
+            .then(updateNodeStatus);
+    });
+}
+
+
+fetch(`${API_BASE}/nodes`)
+    .then(res => res.json())
+    .then(nodes => {
+        Object.values(nodes).forEach(addNodeMarker);
+    })
+    .catch(err => console.error("Failed to load nodes:", err));
+

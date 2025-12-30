@@ -68,7 +68,6 @@
                 </div>
                     
                 <div id="status-content">
-                    <p>Click a node to see its status.</p>
                 </div>
             </div>
 
@@ -82,41 +81,7 @@
                             
                     </div>
 
-                    <div class="incident-list">
-                        <div class="incident-card">
-                            <div class="incident-title">A.B. Fernandez Ave</div>
-                            <div class="incident-status">Status: <span class="text-active">Active</span></div>
-                            <div class="incident-status">Assigned Team: Pantal</div>
-                            <button class="btn-show-map" onclick="routeToIncident(16.041000, 120.334000)">Show on Map & Route</button>
-                        </div>
-
-                        <div class="incident-card">
-                            <div class="incident-title">Perez Boulevard</div>
-                            <div class="incident-status">Status: <span class="text-contained">Contained</span></div>
-                            <div class="incident-status">Assigned Team: Lucao</div>
-                            <button class="btn-show-map" onclick="routeToIncident(16.043300, 120.333300)">Show on Map & Route</button>
-                        </div>
-
-                        <div class="incident-card">
-                            <div class="incident-title">Tapestry (Bonuan)</div>
-                            <div class="incident-status">Status: <span class="text-resolved">Resolved</span></div>
-                            <button class="btn-show-map" onclick="routeToIncident(16.091100, 120.350100)">Show on Map & Route</button>
-                        </div>
-
-                        <div class="incident-card">
-                            <div class="incident-title">Malued District</div>
-                            <div class="incident-status">Status: <span class="text-active">Active</span></div>
-                            <div class="incident-status">Assigned Team: JOHN GLENN</div>
-                            <button class="btn-show-map" onclick="routeToIncident(16.033300, 120.323300)">Show on Map & Route</button>
-                        </div>
-
-                        <div class="incident-card">
-                            <div class="incident-title">Bonuan Gueset</div>
-                            <div class="incident-status">Status: <span class="text-active">Active</span></div>
-                            <div class="incident-status">Assigned Team: JERICK & SHERWIN</div>
-                            <button class="btn-show-map" onclick="routeToIncident(16.075000, 120.345000)">Show on Map & Route</button>
-                        </div>
-                    </div>
+                    <div class="incident-list" id="incidentList"> </div>
             </div>
 
 
@@ -128,13 +93,6 @@
 
         
     
-
-
-
-
-
-
-
 
             <div id="flames-map">
 
@@ -178,7 +136,69 @@
             if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
                 window.location.href = "index.html";
             }
-        </script>
+
+            const API_BASE = "https://flames-backend-hbu0.onrender.com";
+
+            function loadIncidents() {
+                fetch(`${API_BASE}/incidents`)
+                   .then(res => res.json())
+                   .then(incidents => {
+                       const box = document.getElementById("incidentList");
+                       box.innerHTML = "";
+
+                      if (incidents.length === 0) {
+                          box.innerHTML = "<p>No active incidents.</p>";
+                          return;
+                      }
+
+                      incidents.forEach(i => {
+                         box.innerHTML += `
+                             <div class="incident-card">
+                               <div class="incident-title">${i.node_id}</div>
+                               <div class="incident-status">
+                                   Status: <span class="text-active">Active</span>
+                               </div>
+                             </div>
+                           `;
+                     });
+                   });
+            }
+
+            loadIncidents();
+
+                        // --- WebSocket connection ---
+            const socket = new WebSocket(
+              "wss://flames-backend-hbu0.onrender.com/ws"
+            );
+
+            socket.onopen = () => {
+              console.log("✅ WebSocket connected");
+            };
+
+            socket.onmessage = (event) => {
+              try {
+             const data = JSON.parse(event.data);
+
+              if (data.node_id) {
+               updateNodeStatus(data);
+              }
+
+              loadIncidents();
+             } catch (e) {
+             console.warn("Non-JSON WS message:", event.data);
+             }
+            };
+
+
+            socket.onclose = () => {
+            console.log("❌ WebSocket disconnected");
+            };
+
+            socket.onerror = (err) => {
+              console.error("WebSocket error:", err);
+            };
+
+      </script>
 
 
         <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>

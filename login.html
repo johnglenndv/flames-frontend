@@ -17,7 +17,7 @@
 
                 <div class ="login-container">
 
-                        <form id="login-form" action="/login" method="POST" class="active" onsubmit="return redirectToDashboard(event)">
+                        <form id="login-form" class="active" onsubmit="loginUser(event)">
                             
                             <h3 id="h3login">Login</h3>
 
@@ -36,12 +36,34 @@
 
 
         <script>
-            function redirectToDashboard(event) {
-                event.preventDefault(); 
-                window.location.href = "index.html"; 
-                return false;
+        async function loginUser(event) {
+            event.preventDefault();
+
+            const username = document.querySelector('[name="username"]').value;
+            const password = document.querySelector('[name="userpassword"]').value;
+
+            const res = await fetch(
+                "https://flames-backend-hbu0.onrender.com/auth/login",
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password })
+                }
+            );
+
+            const data = await res.json();
+            localStorage.setItem("organization", data.organization);
+            localStorage.setItem("username", data.username);
+
+
+            if (res.ok) {
+                window.location.href = "index.html";
+            } else {
+                alert("Login failed");
             }
+        }
         </script>
+
 
     </body>
 </html>

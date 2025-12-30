@@ -16,13 +16,23 @@
 
                 <div class ="signup-container">
                     
-                        <form id="signup-form" action="/signup" method="POST" class="active" onsubmit="return redirectToDashboard(event)">
+                        <form id="signup-form" class="active" onsubmit="signupUser(event)">
                             <h3>Sign up</h3>
 
                             <div>
                                 <p><input type = "text" placeholder = "Username" name = "username"></p>     
                                 <p><input type = "text" placeholder = "Email(Optional)" name = "email"></p>      
                                 <p><input type = "password" placeholder = "Password" name = "userpassword"></p>
+                               
+                                <label>Organization</label>
+                                <select name="organization" required>
+                                <option value="">Select organization</option>
+                                <option value="BFP">BFP</option>
+                                <option value="Panda Volunteer">Panda Volunteer</option>
+                                <option value="LGU">LGU</option>
+                                <option value="Barangay">Barangay</option>
+                                </select>
+
                                 <p style="font-size: 13px; font-family: arial;">Already have an account? <a href="login.html">Login</a></p>
                                 <p><button type="submit">Sign up</button></p>
                             </div>
@@ -35,12 +45,30 @@
 
         
         <script>
-        function redirectToDashboard(event) {
-            event.preventDefault(); 
-            window.location.href = "index.html"; 
-            return false;
+        async function signupUser(event) {
+            event.preventDefault();
+
+            const username = document.querySelector('[name="username"]').value;
+            const password = document.querySelector('[name="userpassword"]').value;
+            const organization = document.querySelector('[name="organization"]').value;
+
+            const res = await fetch(
+                "https://flames-backend-hbu0.onrender.com/auth/signup",
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password, organization })
+                }
+            );
+
+            if (res.ok) {
+                window.location.href = "login.html";
+            } else {
+                alert("Signup failed");
+            }
         }
         </script>
+
 
    
     </body>
