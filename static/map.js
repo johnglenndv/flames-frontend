@@ -545,28 +545,38 @@ function updateNodeStatus(data) {
     `;
 }
 
+//add node ni jg
 function addNodeMarker(node) {
-    const marker = L.marker([node.lat, node.lon], { icon: nodeIcon })
+    // Fallback if GPS is missing
+    const lat = (node.lat !== null && node.lat !== undefined)
+        ? node.lat
+        : GATEWAY_LAT + (Math.random() - 0.5) * 0.001;
+
+    const lon = (node.lon !== null && node.lon !== undefined)
+        ? node.lon
+        : GATEWAY_LON + (Math.random() - 0.5) * 0.001;
+
+    const marker = L.marker([lat, lon], { icon: nodeIcon })
         .addTo(map)
-        .bindPopup(`Node: ${node.node_id}`, {
+        .bindPopup(`Node: ${node.node}`, {
             autoClose: false,
             closeOnClick: false,
             closeButton: true
         });
 
-    marker.on('mouseover', function () { this.openPopup(); });
-    marker.on('mouseout', function () { this.closePopup(); });
+    marker.on('mouseover', () => marker.openPopup());
+    marker.on('mouseout', () => marker.closePopup());
 
     marker.on('click', function (e) {
         L.DomEvent.stopPropagation(e);
-        this.openPopup();
-        map.flyTo([node.lat, node.lon], 18, { animate: true, duration: 1.5 });
+        map.flyTo([lat, lon], 18, { animate: true, duration: 1.5 });
 
-        fetch(`${API_BASE}/nodes/${node.node_id}`)
+        fetch(`${API_BASE}/nodes/${node.node}`)
             .then(res => res.json())
             .then(updateNodeStatus);
     });
 }
+
 
 
 fetch(`${API_BASE}/nodes`)
