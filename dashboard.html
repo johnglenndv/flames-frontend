@@ -157,15 +157,17 @@
             );
 
             socket.onmessage = (event) => {
-              const payload = JSON.parse(event.data);
+                console.log("WS RAW:", event.data);
 
-              if (payload.type === "nodes") {
-                window.handleNodeUpdate(payload.data);
-             }
+                const payload = JSON.parse(event.data);
 
-             if (payload.type === "incidents") {
-                  window.handleIncidentUpdate(payload.data);
-             }
+                if (payload.type === "nodes") {
+                    window.handleNodeUpdate(payload.data);
+                }
+
+                if (payload.type === "incidents") {
+                    window.handleIncidentUpdate(payload.data);
+                }
             };
 
             socket.onerror = (err) => console.error(err);
