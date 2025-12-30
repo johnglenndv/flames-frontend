@@ -586,3 +586,14 @@ fetch(`${API_BASE}/nodes`)
     })
     .catch(err => console.error("Failed to load nodes:", err));
 
+
+
+//incident count sa dashboard
+fetch(`${API_BASE}/incidents`)
+  .then(res => res.json())
+  .then(incidents => {
+      document.getElementById("incident-count").innerText = incidents.length;
+  })
+  .catch(() => {
+      document.getElementById("incident-count").innerText = "0";
+  });
