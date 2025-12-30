@@ -1,4 +1,4 @@
-
+let selectedNodeId = null;
 
 window.map = L.map('flames-map',{ zoomControl: false}).setView([16.046962, 120.342117], 12); 
 
@@ -620,3 +620,5 @@ fetch(`${API_BASE}/incidents`)
 
   nodeMarkers[node.node].setLatLng([lat, lon]);
 }
+
+

@@ -187,24 +187,24 @@
             };
 
             socket.onmessage = (event) => {
-            try {
-                const msg = JSON.parse(event.data);
+            const msg = JSON.parse(event.data);
 
-              // Node telemetry update
-                if (msg.type === "node_update") {
-                    updateNodeStatus(msg.data);
-                    updateNodeMarker(msg.data); // map update (important)
-                }   
-             // Fire incident update
-                if (msg.type === "incident") {
-                    addIncident(msg.data);
-                    updateIncidentCounter();
-                 }
+            switch (msg.type) {
 
-             } catch (e) {
-              console.warn("Non-JSON WS message:", event.data);
+            case "node_update":
+                handleNodeUpdate(msg.data);
+                break;
+
+            case "incident":
+                handleIncident(msg.data);
+                break;
+
+             case "network_status":
+                handleNetworkUpdate(msg.data);
+                break;
             }
             };
+
 
 
 
