@@ -1,5 +1,8 @@
 let selectedNodeId = null;
 
+const nodeMarkers = {};
+
+
 window.map = L.map('flames-map',{ zoomControl: false}).setView([16.046962, 120.342117], 12); 
 
 // 1. GLOBAL VARIABLES
@@ -560,45 +563,21 @@ function updateNodeStatus(data) {
 
 //add node ni jg
 function addNodeMarker(node) {
-    // Fallback if GPS is missing
-    const lat = (node.lat !== null && node.lat !== undefined)
-        ? node.lat
-        : GATEWAY_LAT + (Math.random() - 0.5) * 0.001;
+  const lat = node.lat ?? GATEWAY_LAT + (Math.random() - 0.5) * 0.001;
+  const lon = node.lon ?? GATEWAY_LON + (Math.random() - 0.5) * 0.001;
 
-    const lon = (node.lon !== null && node.lon !== undefined)
-        ? node.lon
-        : GATEWAY_LON + (Math.random() - 0.5) * 0.001;
+  const marker = L.marker([lat, lon], { icon: nodeIcon })
+    .addTo(map)
+    .bindPopup(`Node: ${node.node}`);
 
-    const marker = L.marker([lat, lon], { icon: nodeIcon })
-        .addTo(map)
-        .bindPopup(`Node: ${node.node}`, {
-            autoClose: false,
-            closeOnClick: false,
-            closeButton: true
-        });
+  nodeMarkers[node.node] = marker; // 🔑 REQUIRED
 
-    marker.on('mouseover', () => marker.openPopup());
-    marker.on('mouseout', () => marker.closePopup());
-
-    marker.on('click', function (e) {
-        L.DomEvent.stopPropagation(e);
-        map.flyTo([lat, lon], 18, { animate: true, duration: 1.5 });
-
-        fetch(`${API_BASE}/nodes/${node.node}`)
-            .then(res => res.json())
-            .then(updateNodeStatus);
-    });
+  marker.on("click", () => {
+    appState.selectedNodeId = node.node;
+    updateNodeStatus(appState.nodes[node.node]);
+    map.flyTo([lat, lon], 18);
+  });
 }
-
-
-
-fetch(`${API_BASE}/nodes`)
-    .then(res => res.json())
-    .then(nodes => {
-        Object.values(nodes).forEach(addNodeMarker);
-    })
-    .catch(err => console.error("Failed to load nodes:", err));
-
 
 
 //incident count sa dashboard
@@ -621,4 +600,50 @@ fetch(`${API_BASE}/incidents`)
   nodeMarkers[node.node].setLatLng([lat, lon]);
 }
 
+//add real-time incident list ni jg
+function renderIncidents() {
+  const box = document.getElementById("incidentList");
+  const count = document.getElementById("incident-count");
 
+  box.innerHTML = "";
+
+  if (appState.incidents.length === 0) {
+    box.innerHTML = "<p>No active incidents.</p>";
+    count.innerText = "0";
+    return;
+  }
+
+  count.innerText = appState.incidents.length;
+
+  appState.incidents.forEach(i => {
+    box.innerHTML += `
+      <div class="incident-card">
+        <div class="incident-title">${i.node}</div>
+        <div class="incident-status">
+          Status: <span class="text-active">Active</span>
+        </div>
+      </div>
+    `;
+  });
+}
+
+//realtime network status ni jg
+function updateNetworkStatus() {
+  const nodes = Object.values(appState.nodes);
+
+  const online = nodes.filter(n => {
+    const last = new Date(n.received_at);
+    return Date.now() - last.getTime() < 30000;
+  }).length;
+
+  appState.network.total = nodes.length;
+  appState.network.online = online;
+  appState.network.offline = nodes.length - online;
+
+  document.getElementById("networkBox").innerHTML = `
+    <div class="network-status-header">Network Status</div>
+    <p>Total: ${appState.network.total}</p>
+    <p>Online: ${appState.network.online}</p>
+    <p>Offline: ${appState.network.offline}</p>
+  `;
+}

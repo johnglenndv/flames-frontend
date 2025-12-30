@@ -148,62 +148,56 @@
 
         <script>
 
+            //realtime truth
+            const appState = {
+             nodes: {},        // all node data (latest)
+             incidents: [],    // active incidents
+              network: {
+              total: 0,
+              online: 0,
+             offline: 0
+             },
+             selectedNodeId: null
+            };
+        </script>
+
+        <script
+
             const API_BASE = "https://flames-backend-hbu0.onrender.com";
 
-            function loadIncidents() {
-                fetch(`${API_BASE}/incidents`)
-                   .then(res => res.json())
-                   .then(incidents => {
-                       const box = document.getElementById("incidentList");
-                       box.innerHTML = "";
-
-                      if (incidents.length === 0) {
-                          box.innerHTML = "<p>No active incidents.</p>";
-                          return;
-                      }
-
-                      incidents.forEach(i => {
-                         box.innerHTML += `
-                             <div class="incident-card">
-                               <div class="incident-title">${i.node_id}</div>
-                               <div class="incident-status">
-                                   Status: <span class="text-active">Active</span>
-                               </div>
-                             </div>
-                           `;
-                     });
-                   });
-            }
-
-            loadIncidents();
 
                         // --- WebSocket connection ---
             const socket = new WebSocket(
               "wss://flames-backend-hbu0.onrender.com/ws"
             );
 
-            socket.onopen = () => {
-              console.log("✅ WebSocket connected");
-            };
-
             socket.onmessage = (event) => {
             const msg = JSON.parse(event.data);
 
-            switch (msg.type) {
+            if (msg.type === "node_update") {
+               const node = msg.data;
 
-            case "node_update":
-                handleNodeUpdate(msg.data);
-                break;
+              // store latest node data
+             appState.nodes[node.node] = node;
 
-            case "incident":
-                handleIncident(msg.data);
-                break;
+             // update map marker in real-time
+             updateNodeMarker(node);
 
-             case "network_status":
-                handleNetworkUpdate(msg.data);
-                break;
+             // auto-update Node Status box
+             if (node.node === appState.selectedNodeId) {
+               updateNodeStatus(node);
+             }
+
+             // recompute network status
+             updateNetworkStatus();
             }
+
+            if (msg.type === "incident") {
+                appState.incidents.push(msg.data);
+                renderIncidents();
+             }
             };
+
 
 
 
