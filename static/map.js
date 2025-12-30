@@ -141,6 +141,7 @@ function updateNodeStatus(node) {
     <p><strong>Smoke:</strong> ${node.smoke}</p>
     <p><strong>Flame:</strong> ${node.flame ? "YES" : "NO"}</p>
     <small>Last update: ${node.received_at}</small>
+  <div>
   `;
 }
 
