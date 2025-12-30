@@ -8,6 +8,10 @@ window.currentLocationCircle = null;
 const locateBtn = document.getElementById('locate-btn');
 let savedMarkersList = [];
 
+//pansamantala gateway coords
+const GATEWAY_LAT = 16.046962;
+const GATEWAY_LON = 120.342117;
+
 // 2. FUNCTION PARA LINISIN ANG MARKERS
 function clearMyLocation() {
     if (window.currentLocationMarker) {
