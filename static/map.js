@@ -98,12 +98,14 @@ function updateNodeStatus(node) {
   if (!box) return;
 
   box.innerHTML = `
+  <div id="status-content">
     <p><strong>Node ID:</strong> ${node.node}</p>
     <p><strong>Temperature:</strong> ${node.temp} °C</p>
     <p><strong>Humidity:</strong> ${node.hum} %</p>
     <p><strong>Smoke:</strong> ${node.smoke}</p>
     <p><strong>Flame:</strong> ${node.flame ? "YES" : "NO"}</p>
     <small>Last update: ${node.received_at}</small>
+  <div>
   `;
 }
 
