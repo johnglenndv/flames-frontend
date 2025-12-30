@@ -187,18 +187,25 @@
             };
 
             socket.onmessage = (event) => {
-              try {
-             const data = JSON.parse(event.data);
+            try {
+                const msg = JSON.parse(event.data);
 
-              if (data.node_id) {
-               updateNodeStatus(data);
-              }
+              // Node telemetry update
+                if (msg.type === "node_update") {
+                    updateNodeStatus(msg.data);
+                    updateNodeMarker(msg.data); // map update (important)
+                }   
+             // Fire incident update
+                if (msg.type === "incident") {
+                    addIncident(msg.data);
+                    updateIncidentCounter();
+                 }
 
-              loadIncidents();
              } catch (e) {
-             console.warn("Non-JSON WS message:", event.data);
-             }
+              console.warn("Non-JSON WS message:", event.data);
+            }
             };
+
 
 
             socket.onclose = () => {

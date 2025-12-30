@@ -610,3 +610,13 @@ fetch(`${API_BASE}/incidents`)
   .catch(() => {
       document.getElementById("incident-count").innerText = "0";
   });
+
+  //update node position ni jg
+  function updateNodeMarker(node) {
+  if (!nodeMarkers[node.node]) return;
+
+  const lat = node.lat ?? gatewayLat;
+  const lon = node.lon ?? gatewayLon;
+
+  nodeMarkers[node.node].setLatLng([lat, lon]);
+}
