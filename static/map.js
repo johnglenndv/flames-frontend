@@ -46,7 +46,7 @@ map.on('locationfound', function(e) {
     }).addTo(map);
 
     var customIcon = L.icon({
-        iconUrl: 'icons/locationmarker.png',
+        iconUrl: '/icons/locationmarker.png',
         iconSize: [50, 50],
         iconAnchor: [20, 40],
         popupAnchor: [0, -40]
@@ -87,7 +87,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 
 var flamesIcon = L.icon({
-    iconUrl: 'icons/Gateway.png', 
+    iconUrl: '/icons/Gateway.png', 
     iconSize: [50, 50],
     iconAnchor: [20, 40],
     popupAnchor: [0, -40]
@@ -114,7 +114,7 @@ gatewayMarker.on('click', function(e) {
 });
 
 var nodeIcon = L.icon({
-    iconUrl: 'icons/Node.png', 
+    iconUrl: '/icons/Node.png', 
     iconSize: [50, 50],
     iconAnchor: [17, 35],
     popupAnchor: [0, -35]
@@ -140,8 +140,9 @@ document.getElementById('home-btn').addEventListener('click', function(e) {
     resetNodeStatus();
 });
 
+
 // NODES LOGIC
-nodesData.forEach(function(node) {
+/*nodesData.forEach(function(node) {
     var marker = L.marker(node.coords, { icon: nodeIcon })
         .addTo(map)
         .bindPopup(node.name, {
@@ -173,6 +174,8 @@ nodesData.forEach(function(node) {
         `;
     });
 });
+*/
+
 
 document.addEventListener('DOMContentLoaded', function() {
     const viewAllBtn = document.querySelector('.view-all-btn');
@@ -198,7 +201,7 @@ document.addEventListener('DOMContentLoaded', function() {
 let tempMarker;
 
 var savedPinIcon = L.icon({
-    iconUrl: 'icons/Pinpoint.png', 
+    iconUrl: '/icons/Pinpoint.png', 
     iconSize: [60, 60],               
     iconAnchor: [30, 60],               
     popupAnchor: [0, -60]               
