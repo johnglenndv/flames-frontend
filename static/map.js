@@ -2,6 +2,16 @@ let selectedNodeId = null;
 
 const nodeMarkers = {};
 
+const appState = {
+  nodes: {},
+  incidents: [],
+  network: {
+    total: 0,
+    online: 0,
+    offline: 0
+  }
+};
+
 
 window.map = L.map('flames-map',{ zoomControl: false}).setView([16.046962, 120.342117], 12); 
 
@@ -647,3 +657,28 @@ function updateNetworkStatus() {
     <p>Offline: ${appState.network.offline}</p>
   `;
 }
+
+// 🔄 called from dashboard.html
+window.handleNodeUpdate = function (nodes) {
+  appState.nodes = nodes;
+
+  Object.values(nodes).forEach(node => {
+    if (!nodeMarkers[node.node]) {
+      addNodeMarker(node);
+    } else {
+      updateNodeMarker(node);
+    }
+  });
+
+  updateNetworkStatus();
+
+  if (appState.selectedNodeId) {
+    updateNodeStatus(appState.nodes[appState.selectedNodeId]);
+  }
+};
+
+// 🔄 called from dashboard.html
+window.handleIncidentUpdate = function (incidents) {
+  appState.incidents = incidents;
+  renderIncidents();
+};

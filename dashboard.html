@@ -148,18 +148,6 @@
 
         <script>
 
-            //realtime truth
-            window.appState = {
-             nodes: {},        // all node data (latest)
-             incidents: [],    // active incidents
-              network: {
-              total: 0,
-              online: 0,
-             offline: 0
-             },
-             selectedNodeId: null
-            };
-
             window.API_BASE = "https://flames-backend-hbu0.onrender.com";
 
 
@@ -169,22 +157,18 @@
             );
 
             socket.onmessage = (event) => {
-            const payload = JSON.parse(event.data);
+              const payload = JSON.parse(event.data);
 
-            // example
-            if (payload.type === "nodes") {
-                appState.nodes = payload.data;
-            }
+              if (payload.type === "nodes") {
+                window.handleNodeUpdate(payload.data);
+             }
 
-            if (payload.type === "incidents") {
-             appState.incidents = payload.data;
-            }
-
-            refreshUI();
+             if (payload.type === "incidents") {
+                  window.handleIncidentUpdate(payload.data);
+             }
             };
 
-
-
+            socket.onerror = (err) => console.error(err);
 
 
             socket.onclose = () => {
