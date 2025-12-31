@@ -31,19 +31,14 @@ async function loadInitialNodes() {
     const res = await fetch(`${API_BASE}/nodes/latest`);
     const nodes = await res.json(); // ✅ this is an ARRAY
 
-    nodes.forEach(raw => {
-      if (!raw.node) {
-        console.warn("Skipping invalid node:", raw);
-        return;
-      }
+    Object.values(nodes).forEach(node => {
+  appState.nodes[node.node] = node;
 
-      appState.nodes[raw.node] = raw;
-
-      if (!nodeMarkers[raw.node]) {
-        addNodeMarker(raw);
-      } else {
-        updateNodeMarker(raw);
-      }
+  if (!nodeMarkers[node.node]) {
+    addNodeMarker(node);
+  } else {
+    updateNodeMarker(node);
+  }
     });
 
     updateNetworkStatus();
