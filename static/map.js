@@ -29,26 +29,32 @@ const appState = {
 async function loadInitialNodes() {
   try {
     const res = await fetch(`${API_BASE}/nodes/latest`);
-    const nodes = await res.json();
+    const nodes = await res.json(); // ✅ this is an ARRAY
 
-    Object.values(nodes).forEach(node => {
-      appState.nodes[node.node] = node;
+    nodes.forEach(raw => {
+      if (!raw.node) {
+        console.warn("Skipping invalid node:", raw);
+        return;
+      }
 
-      if (!nodeMarkers[node.node]) {
-        addNodeMarker(node);
+      appState.nodes[raw.node] = raw;
+
+      if (!nodeMarkers[raw.node]) {
+        addNodeMarker(raw);
       } else {
-        updateNodeMarker(node);
+        updateNodeMarker(raw);
       }
     });
 
     updateNetworkStatus();
-    console.log(`✅ Loaded ${Object.keys(nodes).length} nodes from REST`);
+
+    console.log(`✅ Loaded ${nodes.length} nodes from REST`);
+    console.log("Sample node:", nodes[0]);
   } catch (err) {
     console.error("❌ Failed to load initial nodes:", err);
   }
 }
 
-// 🔥 CALL ONCE
 loadInitialNodes();
 
 
