@@ -1,27 +1,45 @@
-import { appState } from "./state.js";
-import { updateNodeStatus } from "./nodestatus.js";
+// =======================
+// MAP VARIABLES (top)
+// =======================
+let map;
+let nodeMarkers = {};
 
-export const nodeMarkers = {};
+// =======================
+// MAP INITIALIZER
+// =======================
+function initMap() {
+    map = L.map("flames-map", {
+        zoomControl: false
+    }).setView([16.043, 120.333], 13);
 
-export function addNodeMarker(node) {
-  const marker = L.marker([node.lat, node.lon]).addTo(window.map);
-
-  marker.on("click", () => {
-    appState.selectedNodeId = node.node;
-    updateNodeStatus(node);
-  });
-
-  nodeMarkers[node.node] = marker;
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors"
+    }).addTo(map);
 }
 
-export function updateNodeMarker(node) {
-  const marker = nodeMarkers[node.node];
-  if (!marker) return;
+// =======================
+// MARKER HELPERS
+// =======================
+function addNodeMarker(node) {
+    if (!node.lat || !node.lon) return;
 
-  marker.setLatLng([node.lat, node.lon]);
+    const marker = L.marker([node.lat, node.lon])
+        .addTo(map)
+        .on("click", () => selectNode(node.node));
 
-  // If selected → live update status
-  if (appState.selectedNodeId === node.node) {
-    updateNodeStatus(node);
-  }
+    nodeMarkers[node.node] = marker;
 }
+
+function updateNodeMarker(node) {
+    const marker = nodeMarkers[node.node];
+    if (!marker) return;
+
+    marker.setLatLng([node.lat, node.lon]);
+}
+
+// =======================
+// 🔥 DOM READY (BOTTOM)
+// =======================
+document.addEventListener("DOMContentLoaded", () => {
+    initMap();
+});

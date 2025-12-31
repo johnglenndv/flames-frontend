@@ -1,12 +1,12 @@
 #flames-map{
-    position: relative;
+    position: absolute;
     top: 215px;
     left: 20px;
-    height: 630px;
-    width: 55.9%;   
+    height: calc(100vh-230px);
+    width: calc(58.5%-35px);   
     border: 1px solid #09000099;
     border-radius: 10px;
-    z-index: 1 !important;
+    z-index: 1500 !important;
 
 }
 
@@ -404,3 +404,13 @@ position: absolute;
     margin: 0 1.5px; 
 }
 /*ROUTE PLANNER ESTIMATED TIME*/
+
+.leaflet-control img {
+    width: 22px !important;
+    height: 22px !important;
+}
+.leaflet-control button {
+    width: 35px;
+    height: 35px;
+    padding: 0;
+}
