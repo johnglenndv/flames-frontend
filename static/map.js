@@ -27,12 +27,12 @@ async function loadInitialNodes() {
     const res = await fetch("https://flames-backend-hbu0.onrender.com/nodes/latest");
     const nodes = await res.json();
 
-    nodes.forEach(node => {
+    Object.values(nodes).forEach(node => {
       appState.nodes[node.node] = node;
       addOrUpdateNode(node);
     });
 
-    console.log(`✅ Loaded ${nodes.length} nodes from REST`);
+    console.log(`✅ Loaded ${Object.keys(nodes).length} nodes from REST`);
   } catch (err) {
     console.error("❌ Failed to load initial nodes:", err);
   }
