@@ -24,7 +24,7 @@ const appState = {
 
 async function loadInitialNodes() {
   try {
-    const res = await fetch("/nodes/latest");
+    const res = await fetch("https://flames-backend-hbu0.onrender.com/nodes/latest");
     const nodes = await res.json();
 
     nodes.forEach(node => {
