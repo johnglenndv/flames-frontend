@@ -32,6 +32,12 @@ async function loadInitialNodes() {
     const nodes = await res.json(); // ✅ this is an ARRAY
 
     Object.values(nodes).forEach(node => {
+  // 🚫 Ignore error responses
+  if (!node || typeof node !== "object" || !node.node) {
+    console.warn("Skipping invalid REST node:", node);
+    return;
+  }
+
   appState.nodes[node.node] = node;
 
   if (!nodeMarkers[node.node]) {
@@ -39,7 +45,7 @@ async function loadInitialNodes() {
   } else {
     updateNodeMarker(node);
   }
-    });
+});
 
     updateNetworkStatus();
 
