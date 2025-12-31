@@ -22,23 +22,33 @@ const appState = {
   network: { total: 0, online: 0, offline: 0 }
 };
 
+
+// ================================
+// INITIAL LOAD OF NODES
+// ================================
 async function loadInitialNodes() {
   try {
-    const res = await fetch("https://flames-backend-hbu0.onrender.com/nodes/latest");
+    const res = await fetch(`${API_BASE}/nodes/latest`);
     const nodes = await res.json();
 
     Object.values(nodes).forEach(node => {
       appState.nodes[node.node] = node;
-      addOrUpdateNode(node);
+
+      if (!nodeMarkers[node.node]) {
+        addNodeMarker(node);
+      } else {
+        updateNodeMarker(node);
+      }
     });
 
+    updateNetworkStatus();
     console.log(`✅ Loaded ${Object.keys(nodes).length} nodes from REST`);
   } catch (err) {
     console.error("❌ Failed to load initial nodes:", err);
   }
 }
 
-// 🔥 CALL IT ONCE AT PAGE LOAD
+// 🔥 CALL ONCE
 loadInitialNodes();
 
 
@@ -243,22 +253,6 @@ function updateNetworkStatus() {
   `;
 }
 
-// ================================
-// INITIAL LOAD
-// ================================
-async function loadInitialData() {
-  const res = await fetch(`${API_BASE}/nodes`);
-  appState.nodes = await res.json();
-
-  Object.values(appState.nodes).forEach(addNodeMarker);
-  updateNetworkStatus();
-
-  const inc = await fetch(`${API_BASE}/incidents`);
-  appState.incidents = await inc.json();
-  renderIncidents();
-}
-
-loadInitialData();
 
 // ================================
 // WEBSOCKET (REAL-TIME)
