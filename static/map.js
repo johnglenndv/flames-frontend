@@ -28,7 +28,7 @@ const appState = {
 // ================================
 async function loadInitialNodes() {
   try {
-    const res = await fetch(`${API_BASE}/nodes/latest`);
+    const res = await fetch(`${API_BASE}/nodes`);
     const nodes = await res.json(); // ✅ this is an ARRAY
 
     Object.values(nodes).forEach(node => {
