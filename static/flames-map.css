@@ -1,5 +1,5 @@
 #flames-map{
-    position: absolute;
+    position: relative;
     top: 215px;
     left: 20px;
     height: calc(100vh-230px);
@@ -405,18 +405,3 @@ position: absolute;
 }
 /*ROUTE PLANNER ESTIMATED TIME*/
 
-.leaflet-control img {
-    width: 22px !important;
-    height: 22px !important;
-}
-.leaflet-control button {
-    width: 35px;
-    height: 35px;
-    padding: 0;
-}
-
-.leaflet-marker-icon {
-    width: 32px !important;
-    height: 32px !important;
-    max-width: none !important;
-}
