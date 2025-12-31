@@ -1,28 +1,35 @@
+// dashboard.js
+import { initMap, addNodeMarker, updateNodeMarker } from "./map.js";
 import { appState } from "./state.js";
-import { fetchLatestNodes } from "./api.js";
-import { addNodeMarker } from "./map.js";
 import { connectWebSocket } from "./websocket.js";
+import { fetchLatestNodes } from "./api.js";
 
+// 🔥 INITIAL LOAD
 async function loadInitialNodes() {
-  try {
-    const nodes = await fetchLatestNodes();
+    try {
+        const nodes = await fetchLatestNodes();
 
-    nodes.forEach(node => {
-      appState.nodes[node.node] = node;
-      addNodeMarker(node);
-    });
+        Object.values(nodes).forEach(node => {
+            appState.nodes[node.node] = node;
 
-    console.log(`✅ Loaded ${nodes.length} nodes from REST`);
-    console.log("Sample node:", nodes[0]);
+            if (!appState.nodeMarkers[node.node]) {
+                addNodeMarker(node);
+            } else {
+                updateNodeMarker(node);
+            }
+        });
 
-  } catch (err) {
-    console.error("❌ Failed to load initial nodes:", err);
-  }
+        console.log(`✅ Loaded ${Object.keys(nodes).length} nodes from REST`);
+        console.log("Sample node:", Object.values(nodes)[0]);
+
+    } catch (err) {
+        console.error("❌ Failed to load initial nodes:", err);
+    }
 }
 
-async function initDashboard() {
-  await loadInitialNodes();
-  connectWebSocket();
-}
-
-initDashboard();
+// 🔥 DASHBOARD BOOTSTRAP
+document.addEventListener("DOMContentLoaded", async () => {
+    initMap();              // 🗺️ map first
+    await loadInitialNodes(); // 📡 initial REST data
+    connectWebSocket();      // 🔴 realtime updates
+});
