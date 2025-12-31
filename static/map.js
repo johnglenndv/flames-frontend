@@ -49,8 +49,10 @@ async function loadInitialNodes() {
 
     updateNetworkStatus();
 
-    console.log(`✅ Loaded ${nodes.length} nodes from REST`);
-    console.log("Sample node:", nodes[0]);
+    const count = Object.keys(nodes).length;
+    console.log(`✅ Loaded ${count} nodes from REST`);
+    console.log("Sample node:", Object.values(nodes)[0]);
+
   } catch (err) {
     console.error("❌ Failed to load initial nodes:", err);
   }
