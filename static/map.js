@@ -34,3 +34,12 @@ export function updateNodeMarker(node) {
 
     marker.setLatLng([node.lat, node.lon]);
 }
+
+
+export function addGatewayMarker(gateway) {
+    if (!gateway.lat || !gateway.lon) return;
+
+    L.marker([gateway.lat, gateway.lon], {
+        icon: gatewayIcon
+    }).addTo(map);
+}
