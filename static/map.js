@@ -22,6 +22,19 @@ const appState = {
   network: { total: 0, online: 0, offline: 0 }
 };
 
+async function loadInitialNodes() {
+  const res = await fetch("/nodes/latest");
+  const nodes = await res.json();
+
+  nodes.forEach(node => {
+    appState.nodes[node.node] = node;
+    addOrUpdateNode(node);
+  });
+}
+
+loadInitialNodes();
+
+
 const nodeMarkers = {}; // nodeId -> Leaflet marker
 
 // ================================
