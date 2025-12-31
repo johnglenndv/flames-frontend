@@ -173,6 +173,13 @@ function updateNodeMarker(node) {
 // NODE STATUS PANEL
 // ================================
 function updateNodeStatus(node) {
+
+    if (!node || !node.node) {
+     document.getElementById("status-content").innerHTML =
+      "<p>Select a node to view status</p>";
+        return;
+    }
+
     const dt = new Date(node.received_at);
 
     const dateStr = dt.toLocaleDateString(undefined, {
